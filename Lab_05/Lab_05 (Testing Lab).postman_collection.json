@@ -1,0 +1,270 @@
+{
+	"info": {
+		"_postman_id": "6fd2855d-2ea4-4c00-b763-faa79d49f189",
+		"name": "Lab_05 (Testing Lab)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30551523"
+	},
+	"item": [
+		{
+			"name": "https://cat-fact.herokuapp.com/facts/random? animal_type = 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Lab_05\",function(){\r",
+							"    pm.expect(pm.response.code).to.be.eql(200)\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}",
+					"host": [
+						"{{baseURL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://simple-books-api.glitch.me/books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response body is an array\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an('array');\r",
+							"    pm.expect(jsonData.length).to.be.above(0);\r",
+							"    jsonData.forEach(function(book) {\r",
+							"        pm.expect(book.type).to.equal('fiction');\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/books?type=fiction",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"books"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "fiction"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "renameAvailableBooks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"test3\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var availableBook = jsonData.find(book => book.available === true);\r",
+							"    pm.globals.set('AvailableBookId', availableBook.id);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/books",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "gettingDetailsAboutFirstBook",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"test4\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.name.toLowerCase()).to.include('russian');\r",
+							"    pm.expect(jsonData.type.toLowerCase()).to.equal('fiction'); \r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/books/1",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"books",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "newOrderOfBooks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Create a new order and set orderId as a global variable\", function () {\r",
+							"    var bookId = pm.globals.get('AvailableBookId');\r",
+							"    var requestBody = {\r",
+							"        bookId: bookId,\r",
+							"        customerName: \"Nowrid\" // Set the customerName as required\r",
+							"    };\r",
+							"    pm.sendRequest({\r",
+							"        url: 'https://simple-books-api.glitch.me/orders',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'Content-Type': 'application/json',\r",
+							"            'Authorization': 'Bearer f556ff3f26afefc16b6116969080347ad995f4f95b78b945f092c8cfb7fb29d7'\r",
+							"        },\r",
+							"        body: JSON.stringify(requestBody)\r",
+							"    }, function (err, res) {\r",
+							"        pm.test(\"Order creation successful\", function () {\r",
+							"            pm.response.to.have.status(201); // Assuming a successful creation returns 200\r",
+							"        });\r",
+							"        var responseData = res.json();\r",
+							"        pm.globals.set('orderId', responseData.orderId); // Assuming the response contains the orderId\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "f556ff3f26afefc16b6116969080347ad995f4f95b78b945f092c8cfb7fb29d7",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"bookId\": 1,\r\n\"customerName\": \"Nowrid\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/orders",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"clientName\": \"Nowrid\",\r\n\"clientEmail\": \"abrar.nowrid@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/api-clients/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"api-clients",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "f556ff3f26afefc16b6116969080347ad995f4f95b78b945f092c8cfb7fb29d7",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
